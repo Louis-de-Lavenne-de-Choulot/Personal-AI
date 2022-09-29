@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Counter</title>
+		<link rel="shortcut icon" href="favicon.png">
+		<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+		body { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(#eb6363, #9198e5);; font-family: 'Helvetika Neue', Arial, sans-serif; font-size: 28px; }
+		.counter-container { display: flex; flex-direction: column; align-items: center; }
+		.counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
+		.btn-row { display: flex; align-items: center; margin: 1rem; }
+		.btn { cursor: pointer; min-width: 4em; padding: 1em; border-radius: 5px; text-align: center; margin: 0 1rem; box-shadow: 0 6px #8b5e00; color: white; background-color: #E4B702; position: relative; font-weight: bold; }
+		.btn:hover { box-shadow: 0 4px #8b5e00; top: 2px; }
+		.btn:active{ box-shadow: 0 1px #8b5e00; top: 5px; }
+		</style>
+	</head>
+	<body onload=start()>
+		<!-- UI layout -->
+		<h5 class="ia"></h5>
+		<div class="counter-container">
+			<div class="btn-row">
+				<input type="text" class="fromLang" style="color: black; width: 100%;" placeholder="from en">
+				<input type="text" class="lang" style="color: black; width: 100%;" placeholder="to en">
+			</div>
+			<input type="text" class="text" style="color: black; width: 100%;" placeholder="Write Something">
+			<div class="btn-row">
+				<div class="btn btn-say">Say</div>
+				<div class="btn btn-send">Send</div>
+				<div class="btn btn-disc">Discuss</div>
+			</div>
+		</div>
+
+		<!-- Connect UI actions to Go functions -->
+		<script>
+			const ia = document.querySelector('.ia');
+			const text = document.querySelector('.text');
+			const lang = document.querySelector('.lang');
+			const fromLang = document.querySelector('.fromLang');
+			const btnSay = document.querySelector('.btn-say');
+			const btnSend = document.querySelector('.btn-send');
+			const btnDisc = document.querySelector('.btn-disc');
+
+			// We use async/await because Go functions are asynchronous
+			const render = async () => {
+				ia.innerText = `${await window.GetInput()}`;
+			};
+
+			btnSay.addEventListener('click', async () => {
+				await Say(); // Call Go function
+			});
+
+			btnSend.addEventListener('click', async () => {
+				await Send(text.value, lang.value, fromLang.value); // Call Go function
+				console.log(`${await window.GetInput()}`);
+				render();
+			});
+
+			btnDisc.addEventListener('click', async () => {
+				await Discuss(); // Call Go function
+			});
+
+			render();
+		</script>
+	</body>
+</html>
