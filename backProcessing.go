@@ -15,28 +15,30 @@ import (
 var speechFile string = "languagesSpeech"
 var translationFile string = "languagesTranslation"
 
-func Serv(mod string, input string, lang string, fromLang string) string {
+func Serv(input string, lang string, fromLang string) string {
+	println("Processing " + input)
 	if lang == "" {
 		lang = "en"
 	}
 	if fromLang == "" {
 		fromLang = "en"
 	}
-	if strings.Contains(mod, "Say") {
-		//translate input in the language
-		input = Translate(input, lang, fromLang)
-		return Say(input, lang, fromLang)
-	} else if strings.Contains(mod, "Discuss") {
-		//translate input in english
-		input = Translate(input, "en", fromLang)
-		return Translate(witAIHandler(input, ""), lang, "en")
+	//translate input in english
+	input = Translate(input, "en", fromLang)
+	v, fromLang := witAIHandler(input, "")
+	println("french")
+	println(fromLang)
+	if fromLang == "" {
+		fromLang = "en"
 	}
-	return ("Invalid input")
+	Say(v, fromLang)
+	return v
 }
 
-func Say(input string, lang string, fromLang string) string {
+func Say(input string, lang string) string {
+	println("Saying " + input)
 	//search for language in languagesSpeech.csv
-	lang = languageSearch(lang, false, speechFile)
+	lang = languageSearch(lang, speechFile)
 	speech := htgotts.Speech{Folder: "audio", Language: lang}
 	speech.Speak(input)
 	return input
@@ -45,12 +47,10 @@ func Say(input string, lang string, fromLang string) string {
 func Translate(input string, lang string, fromLang string) string {
 	//fromLang is optional if not set, it will be set to english
 	if fromLang != "en" {
-		fromLang = languageSearch(fromLang, true, translationFile)
+		fromLang = languageSearch(fromLang, translationFile)
 	}
-	//language search if lang length is higher than 3
-	if len(lang) > 3 {
-		lang = languageSearch(lang, true, translationFile)
-	}
+	lang = languageSearch(lang, translationFile)
+	println("Translating from " + fromLang + " to " + lang)
 	translated, err := gtranslate.TranslateWithParams(
 		input,
 		gtranslate.TranslationParams{
@@ -64,19 +64,14 @@ func Translate(input string, lang string, fromLang string) string {
 	return translated
 }
 
-func languageSearch(input string, fileType bool, file string) string {
+func languageSearch(input string, file string) string {
 	if len(input) < 3 {
 		return input
 	}
 	//input to lower case
 	input = strings.ToLower(input)
-	var nbre int = 0
-	//check if file is has 2 or 3 columns
-	if fileType {
-		nbre = 1
-	}
 	//loop 2 times to search for exact match
-	for i := 0; i < 1+nbre; i++ {
+	for i := 0; i < 2; i++ {
 		//search for language in languages.csv
 		csvFile, _ := os.Open(file + ".csv")
 		defer csvFile.Close()
@@ -89,23 +84,18 @@ func languageSearch(input string, fileType bool, file string) string {
 				log.Fatal(error)
 			}
 			if strings.ToLower(line[i]) == input {
-				return line[1+nbre]
+				return line[2]
 			}
 		}
 	}
-	return partialLanguageSearch(input, fileType, file)
+	return partialLanguageSearch(input, file)
 }
 
-func partialLanguageSearch(input string, fileType bool, file string) string {
+func partialLanguageSearch(input string, file string) string {
 	//input to lower case
 	input = strings.ToLower(input)
-	var nbre int = 0
-	//check if file is has 2 or 3 columns
-	if fileType {
-		nbre = 1
-	}
 	//loop 2 times to search for exact match
-	for i := 0; i < 1+nbre; i++ {
+	for i := 0; i < 2; i++ {
 		//search for language in languages.csv
 		csvFile, _ := os.Open(file + ".csv")
 		defer csvFile.Close()
@@ -118,10 +108,12 @@ func partialLanguageSearch(input string, fileType bool, file string) string {
 				log.Fatal(error)
 			}
 			if strings.Contains(strings.ToLower(line[i]), input) {
-				return line[1+nbre]
+				return line[2]
 			}
 		}
 	}
+	speech := htgotts.Speech{Folder: "audio", Language: "en-UK"}
+	speech.Speak("Language not found in voice synthetiser, switching to english")
 	//return language code
 	return "en"
 }

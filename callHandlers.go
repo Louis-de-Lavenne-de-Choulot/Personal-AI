@@ -9,16 +9,9 @@ import (
 // operations, but for more complex cases one should use proper synchronization.
 type Mod struct {
 	sync.Mutex
-	mode     string
 	input    string
 	lang     string
 	fromLang string
-}
-
-func (mod *Mod) SayMod() {
-	mod.Lock()
-	defer mod.Unlock()
-	mod.mode = "Say"
 }
 
 func (mod *Mod) Send(input string, lang string, fromLang string) {
@@ -26,13 +19,7 @@ func (mod *Mod) Send(input string, lang string, fromLang string) {
 	defer mod.Unlock()
 	mod.lang = lang
 	mod.fromLang = fromLang
-	mod.input = Serv(mod.mode, input, mod.lang, mod.fromLang)
-}
-
-func (mod *Mod) DiscussMod() {
-	mod.Lock()
-	defer mod.Unlock()
-	mod.mode = "Discuss"
+	mod.input = Serv(input, mod.lang, mod.fromLang)
 }
 
 func (mod *Mod) GetInput() string {

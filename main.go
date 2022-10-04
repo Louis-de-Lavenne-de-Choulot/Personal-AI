@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"net"
@@ -14,10 +13,11 @@ import (
 	"github.com/zserge/lorca"
 )
 
-//go:embed www
-var fs embed.FS
+// //go:embed www
+// var fs embed.FS
 
 func main() {
+	authSpotify()
 	args := []string{}
 	resolution := screenresolution.GetPrimary()
 	if resolution == nil {
@@ -40,22 +40,28 @@ func main() {
 
 	// Create and bind Go object to the UI
 	mod := &Mod{}
-	ui.Bind("Say", mod.SayMod)
 	ui.Bind("Send", mod.Send)
-	ui.Bind("Discuss", mod.DiscussMod)
 	ui.Bind("GetInput", mod.GetInput)
 
 	// Load HTML.
 	// You may also use `data:text/html,<base64>` approach to load initial HTML,
 	// e.g: ui.Load("data:text/html," + url.PathEscape(html))
 
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := net.Listen("tcp", "127.0.0.1:5019")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ln.Close()
-	go http.Serve(ln, http.FileServer(http.FS(fs)))
-	ui.Load(fmt.Sprintf("http://%s/www", ln.Addr()))
+	// serv /www/ as root page
+	http.Handle("/", http.FileServer(http.Dir("./www")))
+	// //redirect /callback to root page
+	// http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+	// 	http.Redirect(w, r, "/", http.StatusFound)
+	// })
+	//serv on port 5019
+	go http.Serve(ln, nil)
+
+	ui.Load(fmt.Sprintf("http://%s", ln.Addr()))
 
 	// You may use console.log to debug your JS code, it will be printed via
 	// log.Println(). Also exceptions are printed in a similar manner.
