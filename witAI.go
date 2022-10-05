@@ -2,15 +2,21 @@ package main
 
 //file for witAI
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/krognol/go-wolfram"
 	witai "github.com/wit-ai/wit-go/v2"
+	"github.com/zmb3/spotify/v2"
 )
 
-var witClient *witai.Client
+var (
+	witClient *witai.Client
+	vol       int = 50
+	device    spotify.ID
+)
 
 // function WitAISend to send a message to wit.ai and get the response
 func witAIHandler(message string, key string) (string, string) {
@@ -18,7 +24,6 @@ func witAIHandler(message string, key string) (string, string) {
 	if key == "" {
 		key = os.Getenv("WIT_AI_ACCESS_TOKEN")
 	}
-	println("wit.ai key: ", key)
 	witClient = witai.NewClient(key)
 	resp, err := witClient.Parse(&witai.MessageRequest{Query: message})
 	if err != nil {
@@ -46,8 +51,78 @@ func witAIHandler(message string, key string) (string, string) {
 // function reply to reply to the user
 func reply(entityKey string, entity witai.MessageIntent, message string) (string, string) {
 	println("_____________________________" + entityKey + "____________________________")
+	message = strings.ReplaceAll(message, "Franck", "")
 	switch entityKey {
-	//switch case for the intents : Calculation,I_am_the_greatest_AI_created_by_Louis_de_Lavenne_de_Choulot,Thank,change_language,greetings,greetings_question,say,search,translate,wit/cancel,wit/stop
+	case "max_volume":
+		searchForDevice()
+		if device != "" {
+			vol = 100
+			SetPlaybackVolume(vol, device)
+			return "", ""
+		}
+		return "", ""
+	case "min_volume":
+		searchForDevice()
+		if device != "" {
+			vol = 5
+			SetPlaybackVolume(vol, device)
+			return "", ""
+		}
+		return "", ""
+	case "wit$decrease_volume":
+		searchForDevice()
+		//decrease device volume
+		if device != "" {
+			vol -= 5
+			SetPlaybackVolume(vol, device)
+			return "", ""
+		}
+		return "the device was not given", ""
+	case "wit$increase_volume":
+		searchForDevice()
+		//increase device volume
+		if device != "" {
+			vol += 5
+			SetPlaybackVolume(vol, device)
+			return "", ""
+		}
+		return "the device was not given", ""
+	case "wit$skip_track":
+		searchForDevice()
+		if device != "" {
+			SkipToNext(device)
+			return "", ""
+		}
+		return "the device was not given", ""
+	case "wit$previous_track":
+		searchForDevice()
+		if device != "" {
+			SkipToPrevious(device)
+			return "", ""
+		}
+		return "the device was not given", ""
+	case "change_language":
+		//change language
+		return "sorry, I can't do that yet", ""
+	case "greetings":
+		return "Hello", ""
+	case "greetings_question":
+		return "I'm fine, and you?", ""
+	case "Thank":
+		return "You're welcome", ""
+	case "goodbye":
+		return "Bye", ""
+	case "say":
+		return Say(message, "en"), ""
+	case "search":
+		return Search(message, os.Getenv("WOLFRAM_APP_ID")), ""
+	case "Translation":
+		//find last occurence of "to" in message and get the substring after it
+		lastOccurence := message[strings.LastIndex(message, "to")+3:]
+		return Translate(message, lastOccurence, "en"), lastOccurence
+
+	case "I_am_the_greatest_AI_created_by_Louis_de_Lavenne_de_Choulot":
+		return "I am the greatest AI created by Louis de Lavenne de Choulot de Chabaud-la-Tour", ""
 	case "Calculation":
 		message = strings.ReplaceAll(message, "plus", "+")
 		message = strings.ReplaceAll(message, "x", "*")
@@ -88,30 +163,6 @@ func reply(entityKey string, entity witai.MessageIntent, message string) (string
 			return err.Error(), ""
 		}
 		return fmt.Sprintf("%f", result), ""
-	case "I_am_the_greatest_AI_created_by_Louis_de_Lavenne_de_Choulot":
-		return "I am the greatest AI created by Louis de Lavenne de Choulot de Chabaud-la-Tour", ""
-	case "change_language":
-		//Get list of devices
-		devices := GetAvailableDevices()
-		println("_____________________________devices: ", devices)
-		SkipToNext(devices[0].ID)
-		return "I can't do that yet", ""
-	case "greetings":
-		return "Hello", ""
-	case "greetings_question":
-		return "I'm fine, and you?", ""
-	case "Thank":
-		return "You're welcome", ""
-	case "goodbye":
-		return "Bye", ""
-	case "say":
-		return Say(message, "en"), ""
-	case "search":
-		return Search(message, os.Getenv("WOLFRAM_APP_ID")), ""
-	case "Translation":
-		//find last occurence of "to" in message and get the substring after it
-		lastOccurence := message[strings.LastIndex(message, "to")+3:]
-		return Translate(message, lastOccurence, "en"), lastOccurence
 	default:
 		return "I don't understand", ""
 	}
@@ -126,4 +177,30 @@ func Search(message string, key string) string {
 		return "Error at client message"
 	}
 	return resp
+}
+
+func searchForDevice() {
+	if device == "" {
+		//Get list of devices
+		devices := GetAvailableDevices()
+		listdev := [][]string{}
+		Say("Which device ?", "")
+		//loop through devices and say the name
+		for _, rdevice := range devices {
+			Say(string(rdevice.Name), "en")
+			listdev = append(listdev, []string{string(rdevice.ID), string(rdevice.Name)})
+		}
+		//scan for the device name
+		println("Write device name")
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		//for device in listdev contains scanner.Text() set device to device[x]
+		for _, dev := range listdev {
+			if strings.Contains(dev[1], scanner.Text()) {
+				device = spotify.ID(dev[0])
+			}
+		}
+		//wait 10 seconds for the user to answer
+		// time.Sleep(10 * time.Second)
+	}
 }

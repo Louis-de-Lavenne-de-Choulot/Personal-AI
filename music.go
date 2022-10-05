@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"os"
 
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"golang.org/x/oauth2"
 
 	"github.com/zmb3/spotify/v2"
 )
@@ -32,65 +34,63 @@ var (
 )
 
 func authSpotify() {
-	// //if safe.txt contains a token, connect to spotify with that token
-	// f, err := os.Open("safe.txt")
-	// if err != nil {
-	// 	fmt.Println("No token found, starting auth process")
-	// } else {
-	// 	fmt.Println("Token found, connecting to spotify")
-	// 	token, err := spotifyauth.(f)
-	// 	if err != nil {
-	// 		fmt.Println("Error reading token")
-	// 	} else {
-	// 		client = auth.NewClient(token)
-	// 		fmt.Println("Connected to spotify")
-	// 	}
-	// }
+	//if safe.txt contains a token, unmarshal it and use it to get an authenticated client
+	f, err := os.Open("safe.txt")
+	if err != nil {
+		println("No token found, please authenticate")
+	}
+	defer f.Close()
+	var tok oauth2.Token
+	err = json.NewDecoder(f).Decode(&tok)
+	if err != nil {
+		println("No token found, please authenticate")
 
-	go func() {
-		//handle /callback should call completeAuth then redirect to the main page /
-		http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-			completeAuth(w, r)
-			http.Redirect(w, r, "/", http.StatusFound)
-		})
-		url := auth.AuthURL(state)
-		println("Please log in to Spotify by visiting the following page in your browser:"+url, "en")
+		go func() {
+			//handle /callback should call completeAuth then redirect to the main page /
+			http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+				completeAuth(w, r)
+				http.Redirect(w, r, "/", http.StatusFound)
+			})
+			url := auth.AuthURL(state)
+			println("Please log in to Spotify by visiting the following page in your browser:"+url, "en")
 
-		// wait for auth to complete
-		client = <-ch
+			// wait for auth to complete
+			client = <-ch
 
-		// use the client to make calls that require authorization
-		user, err := client.CurrentUser(context.Background())
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("You are logged in as:", user.ID)
-		// //save client in safe.txt
-		// f, err := os.Create("safe.txt")
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
-		// _, err = f.WriteString(client)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	f.Close()
-		// 	return
-		// }
-		// err = f.Close()
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
+			// use the client to make calls that require authorization
+			user, err := client.CurrentUser(context.Background())
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("You are logged in as:", user.ID)
+			// //save client in safe.txt
+			// f, err := os.Create("safe.txt")
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return
+			// }
+			// _, err = f.WriteString(client)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	f.Close()
+			// 	return
+			// }
+			// err = f.Close()
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return
+			// }
 
-		playerState, err = client.PlayerState(context.Background())
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Found your %s (%s)\n", playerState.Device.Type, playerState.Device.Name)
-		//close the channel to signal that auth has completed
-		close(ch)
-	}()
+			playerState, err = client.PlayerState(context.Background())
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("Found your %s (%s)\n", playerState.Device.Type, playerState.Device.Name)
+			//close the channel to signal that auth has completed
+			close(ch)
+		}()
+	}
+	client = spotify.New(auth.Client(context.Background(), &tok))
 }
 
 func completeAuth(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +107,30 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 	client := spotify.New(auth.Client(r.Context(), tok))
 
 	ch <- client
+
+	btys, err := json.Marshal(tok)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//save token in safe.txt
+	f, err := os.Create("safe.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, err = f.WriteString(string(btys))
+	if err != nil {
+		fmt.Println(err)
+		f.Close()
+		return
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func userInfo(userI string) {

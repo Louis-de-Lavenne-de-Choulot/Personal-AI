@@ -136,12 +136,20 @@
 			var transcript = event.results[current][0].transcript;
 			var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
 			if (!mobileRepeatBug) {
+				var doNotWait = false;
+				var actw = (document.querySelector('.activation_word').value).toLowerCase()
+				//if  activation word in transcript and if there something after it
+				// if ((transcript.toLowerCase()).includes(actw) && transcript.split(actw)[1] != "") {
+				// 	doNotWait = true;
+				// }
 				noteContent += transcript;
 				transcript = transcript.toLowerCase();
 				//write noteContent to the component with class .ia
 				document.querySelector('.ia').innerText = (noteContent);
+				//log doNotWait and waitOnce
+				console.log(doNotWait, waitOnce);
 				// if transcript contains the word set in the input field .activation_word then call Discuss() and Send() and await for the response
-				if (waitOnce) {
+				if (doNotWait || waitOnce) {
 					// var indexesAnd = getAllIndexes(transcript, 'and');
 					var minIndex = [0, "none"];
 					//foreach keyword in the list of keywords
@@ -178,14 +186,15 @@
 							recognition.lang = speech_recognition.innerText;
 						}
 					}else{
-							SpeechSend(transcript, minIndex);
+							await SpeechSend(transcript, minIndex);
+							waitOnce = false;
 						}
-					waitOnce = false;
 				}
 
-				if (transcript.includes((document.querySelector('.activation_word').value).toLowerCase())) {
+				if (transcript.includes(document.querySelector('.activation_word').value.toLowerCase()) && !doNotWait) {
 					waitOnce = true;
 				}
+
 			}
 		}
 

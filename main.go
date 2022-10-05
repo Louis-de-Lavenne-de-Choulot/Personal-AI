@@ -40,6 +40,7 @@ func main() {
 
 	// Create and bind Go object to the UI
 	mod := &Mod{}
+	ui.Bind("Ans", mod.Send)
 	ui.Bind("Send", mod.Send)
 	ui.Bind("GetInput", mod.GetInput)
 
