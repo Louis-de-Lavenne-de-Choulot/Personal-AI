@@ -184,7 +184,7 @@ func searchForDevice() {
 		//Get list of devices
 		devices := GetAvailableDevices()
 		listdev := [][]string{}
-		Say("Which device ?", "")
+		Say("Which device ?", "en")
 		//loop through devices and say the name
 		for _, rdevice := range devices {
 			Say(string(rdevice.Name), "en")
