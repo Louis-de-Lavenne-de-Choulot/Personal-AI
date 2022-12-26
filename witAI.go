@@ -27,7 +27,7 @@ func witAIHandler(message string, key string) (string, string) {
 	witClient = witai.NewClient(key)
 	resp, err := witClient.Parse(&witai.MessageRequest{Query: message})
 	if err != nil {
-		println("error: ", err)
+		println("error: ", err.Error())
 		return "Error at client message", ""
 	}
 	var (
@@ -173,7 +173,7 @@ func Search(message string, key string) string {
 	client := &wolfram.Client{AppID: key}
 	resp, err := client.GetSpokentAnswerQuery(message, wolfram.Metric, 1000)
 	if err != nil {
-		println("error: ", err)
+		println("error: ", err.Error())
 		return "Error at client message"
 	}
 	return resp

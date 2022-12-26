@@ -92,7 +92,8 @@
 		<input type="text" class="inp text" style="color: black; width: 100%;" placeholder="Write Something">
 		<div class="btn-row">
 			<div class="btn btn-send">Send</div>>
-			<div onclick="recognition.stop();recognition.lang = speech_recognition.lang ;recognition.start();" class="btn btn-disc">Run SpeechRecognition</div>
+			<div onclick="recognition.stop();recognition.lang = speech_recognition.lang ;recognition.start();"
+				class="btn btn-disc">Run SpeechRecognition</div>
 		</div>
 	</div>
 
@@ -101,6 +102,7 @@
 	<script>
 		//create a list of keywords
 		var keywords = ["begin language", "end language", "activation word", "speech"];
+		var started = false;
 
 		try {
 			var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -115,15 +117,15 @@
 		}
 
 		recognition.onstart = function () {
-			console.log('Voice recognition activated. Try speaking into the microphone.');
+			started = true;
 		}
 
 		recognition.onend = function (event) {
-			console.log('You were quiet for a while so voice recognition turned itself off.');
-			alert('Finished in ' + event.elapsedTime + ' seconds.');
+			started = false;
 		}
 
 		recognition.onerror = function (event) {
+			started = false;
 			if (event.error == 'no-speech') {
 				console.log('No speech was detected. Try again.');
 			};
@@ -163,7 +165,7 @@
 									minIndex = [index, keyword];
 								}
 							}
-						// }
+							// }
 						}
 					});
 					//if minIndex is not 0 then call the function that is in minIndex[1]
@@ -185,35 +187,58 @@
 							speech_recognition.value = transcript.substring(minIndex[0] + minIndex[1].length);
 							recognition.lang = speech_recognition.innerText;
 						}
-					}else{
-							await SpeechSend(transcript, minIndex);
-							waitOnce = false;
-						}
+					} else {
+						await SpeechSend(transcript, minIndex);
+						waitOnce = false;
+					}
 				}
 
-				if (transcript.includes(document.querySelector('.activation_word').value.toLowerCase()) && !doNotWait) {
+				if (transcript.includes(document.querySelector('.activation_word').value.toLowerCase()) && !
+					doNotWait) {
 					waitOnce = true;
 				}
 
 			}
 		}
 
-		async function SpeechSend(transcript, minIndex){
-					//replace activation word by "" in the transcript
-					transcript = transcript.replace(activation_word, "");
+		async function SpeechSend(transcript, minIndex) {
+			//replace activation word by "" in the transcript
+			transcript = transcript.replace(activation_word, "");
 
-					//Call Send() and await for the response
-					await Send(transcript, lang.value, fromLang.value);
-					render();
+			//Call Send() and await for the response
+			await Send(transcript, lang.value, fromLang.value);
+			render();
 		}
-
 
 		navigator.mediaDevices.getUserMedia({
 				audio: true
 			})
 			.then(function (stream) {
 				console.log('You have given me access to your mic, starting recognition...');
-				recognition.start();
+				// recognition.start();
+				const audioContext = new AudioContext();
+				const analyser = audioContext.createAnalyser();
+				const microphone = audioContext.createMediaStreamSource(stream);
+				const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+
+				analyser.smoothingTimeConstant = 0.8;
+				analyser.fftSize = 1024;
+
+				microphone.connect(analyser);
+				analyser.connect(scriptProcessor);
+				scriptProcessor.connect(audioContext.destination);
+				scriptProcessor.onaudioprocess = function () {
+					const array = new Uint8Array(analyser.frequencyBinCount);
+					analyser.getByteFrequencyData(array);
+					const arraySum = array.reduce((a, value) => a + value, 0);
+					const average = arraySum / array.length;
+					if (Math.round(average) > 44, !started){
+						//if recognition is not running then start it
+						if (!recognition.running){
+							recognition.start();
+						}
+					}
+				};
 			})
 			.catch(function (err) {
 				console.log('No mic for you!')
