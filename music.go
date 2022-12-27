@@ -63,23 +63,6 @@ func authSpotify() {
 				log.Fatal(err)
 			}
 			fmt.Println("You are logged in as:", user.ID)
-			// //save client in safe.txt
-			// f, err := os.Create("safe.txt")
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return
-			// }
-			// _, err = f.WriteString(client)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	f.Close()
-			// 	return
-			// }
-			// err = f.Close()
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return
-			// }
 
 			playerState, err = client.PlayerState(context.Background())
 			if err != nil {
