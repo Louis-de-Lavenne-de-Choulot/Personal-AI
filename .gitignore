@@ -21,3 +21,5 @@
 go.work
 *.txt
 *keys
+*.DS_Store
+*.log
