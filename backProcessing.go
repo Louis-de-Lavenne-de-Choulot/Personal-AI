@@ -12,7 +12,7 @@ import (
 	htgotts "github.com/hegedustibor/htgo-tts"
 )
 
-var speechFile string = "languagesSpeech"
+// var speechFile string = "languagesSpeech"
 var translationFile string = "languagesTranslation"
 
 func Serv(input string, lang string, fromLang string) string {
@@ -26,23 +26,21 @@ func Serv(input string, lang string, fromLang string) string {
 	//translate input in english
 	input = Translate(input, "en", fromLang)
 	v, fromLang := witAIHandler(input, "")
-	println("french")
 	println(fromLang)
 	if fromLang == "" {
 		fromLang = "en"
 	}
-	Say(v, fromLang)
 	return v
 }
 
-func Say(input string, lang string) string {
-	println("Saying " + input)
-	//search for language in languagesSpeech.csv
-	lang = languageSearch(lang, speechFile)
-	speech := htgotts.Speech{Folder: "audio", Language: lang}
-	speech.Speak(input)
-	return input
-}
+// func Say(input string, lang string) string {
+// 	println("Saying " + input)
+// 	//search for language in languagesSpeech.csv
+// 	lang = languageSearch(lang, speechFile)
+// 	speech := htgotts.Speech{Folder: "audio", Language: lang}
+// 	speech.Speak(input)
+// 	return input
+// }
 
 func Translate(input string, lang string, fromLang string) string {
 	//fromLang is optional if not set, it will be set to english
@@ -107,7 +105,7 @@ func partialLanguageSearch(input string, file string) string {
 			} else if error != nil {
 				log.Fatal(error)
 			}
-			if strings.Contains(strings.ToLower(line[i]), input) {
+			if strings.Contains(input, strings.ToLower(line[i])) {
 				return line[2]
 			}
 		}

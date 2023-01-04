@@ -113,10 +113,10 @@ func reply(entityKey string, entity witai.MessageIntent, message string) (string
 	case "goodbye":
 		return "Bye", ""
 	case "say":
-		return Say(message, "en"), ""
+		return message, ""
 	case "search":
 		return Search(message, os.Getenv("WOLFRAM_APP_ID")), ""
-	case "Translation":
+	case "translate":
 		//find last occurence of "to" in message and get the substring after it
 		lastOccurence := message[strings.LastIndex(message, "to")+3:]
 		return Translate(message, lastOccurence, "en"), lastOccurence
@@ -184,10 +184,10 @@ func searchForDevice() {
 		//Get list of devices
 		devices := GetAvailableDevices()
 		listdev := [][]string{}
-		Say("Which device ?", "en")
+		// Say("Which device ?", "en")
 		//loop through devices and say the name
 		for _, rdevice := range devices {
-			Say(string(rdevice.Name), "en")
+			// Say(string(rdevice.Name), "en")
 			listdev = append(listdev, []string{string(rdevice.ID), string(rdevice.Name)})
 		}
 		//scan for the device name

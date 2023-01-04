@@ -5,29 +5,32 @@
 	<title>Counter</title>
 	<link rel="shortcut icon" href="favicon.png">
 	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-			user-select: none;
+		html,
+		body {
+			height: 100%;
 		}
 
 		body {
-			height: 100vh;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			/* background gradient between soft black and soft white */
-			background: linear-gradient(45deg, #1a1a1a, #686868, #1a1a1a);
-			;
+			/* background half soft black half soft white 0° */
+			background: linear-gradient(0deg, #141414 48%, #fffcfc 48%);
 			font-family: 'Helvetika Neue', Arial, sans-serif;
 			font-size: 28px;
+			display: flex;
+			justify-content: center;
 		}
 
 		.counter-container {
 			display: flex;
-			flex-direction: column;
-			align-items: center;
+    		align-items: center;
+    		height: -webkit-fill-available;
+    		height: -moz-available;
+    		height: fill-available;
+    		flex-direction: column;
+    		justify-content: center;
+		}
+
+		.counter-container>div {
+			text-align: -webkit-center;
 		}
 
 		.counter {
@@ -37,63 +40,99 @@
 			font-size: 3rem;
 		}
 
-		.btn-row {
+		.counter-container label {
+			color: #fff;
+			mix-blend-mode: difference;
+			text-align-last: center;
+		}
+
+		.final {
 			display: flex;
-			align-items: center;
-			margin: 1rem;
-		}
-
-		.btn {
-			cursor: pointer;
-			min-width: 4em;
-			padding: 1em;
-			border-radius: 5px;
-			text-align: center;
-			margin: 0 1rem;
-			box-shadow: 0 6px #070707;
-			color: white;
-			background-color: #2a2a2a;
-			position: relative;
-			font-weight: bold;
-		}
-
-		.btn:hover {
-			box-shadow: 0 4px #101010;
-			top: 2px;
-		}
-
-		.btn:active {
-			box-shadow: 0 1px #000000;
-			top: 5px;
-		}
-
-		/* input with class .inp with light white background design*/
-		.inp {
-			background-color: #d6d6d6b7;
-			border: none;
-
-			padding: 0.5rem;
-			border-top: 1px solid #fff;
-			border-bottom: 1px solid #fff;
+    		align-items: flex-start;
 		}
 	</style>
 </head>
 
-<body onload=start()>
+<body>
 	<!-- UI layout -->
 	<div class="counter-container">
-		<h6 class="ia"></h6>
+		<div class="final">
+			<div>
+				<label>Recognised</label>
+		<p class="ia"></hp>
+		</div>
+		<div>
+			<label>Answer</label>
+			<p class="ia-answer"></p>
+		</div>
+		
+	</div>
 		<div class="btn-row">
-			<input type="text" class="inp fromLang" style="color: black; width: 100%;" placeholder="from en">
-			<input type="text" class="inp lang" style="color: black; width: 100%;" placeholder="to en">
-			<input type="text" class="inp activation_word" style="color: black; width: 100%;" value="Frank">
+			<div>
+				<!-- context of the select for ia voices -->
+				<label class="ia">Select the voice of your AI</label>
+				<!-- selection dropdown button with id voices -->
+				<select id="voices" class="inp" style="color: black; width: 100%;">
+					<option value="ar-SA, Maged">ar-SA, Maged</option>
+					<option value="cs-CZ, Zuzana">cs-CZ, Zuzana</option>
+					<option value="da-DK, Sara">da-DK, Sara</option>
+					<option value="de-DE, Anna">de-DE, Anna</option>
+					<option value="el-GR, Melina">el-GR, Melina</option>
+					<option value="en, Fiona">en, Fiona</option>
+					<option value="en-AU, Karen">en-AU, Karen</option>
+					<option value="en-GB, Daniel">en-GB, Daniel</option>
+					<option value="en-IE, Moira">en-IE, Moira</option>
+					<option value="en-IN, Rishi">en-IN, Rishi</option>
+					<option value="en-IN, Veena">en-IN, Veena</option>
+					<option value="en-US, Alex" selected>en-US, Alex</option>
+					<option value="en-US, Cleveland">en-US, Cleveland</option>
+					<option value="en-US, Fred">en-US, Fred</option>
+					<option value="en-US, Samantha">en-US, Samantha</option>
+					<option value="en-US, Victoria">en-US, Victoria</option>
+					<option value="en-ZA, Tessa">en-ZA, Tessa</option>
+					<option value="es-AR, Diego">es-AR, Diego</option>
+					<option value="es-ES, Jorge">es-ES, Jorge</option>
+					<option value="es-ES, Monica">es-ES, Monica</option>
+					<option value="es-MX, Juan">es-MX, Juan</option>
+					<option value="es-MX, Paulina">es-MX, Paulina</option>
+					<option value="fi-FI, Satu">fi-FI, Satu</option>
+					<option value="fr-CA, Amelie">fr-CA, Amelie</option>
+					<option value="fr-FR, Thomas">fr-FR, Thomas</option>
+					<option value="he-IL, Carmit">he-IL, Carmit</option>
+					<option value="hi-IN, Lekha">hi-IN, Lekha</option>
+					<option value="hu-HU, Mariska">hu-HU, Mariska</option>
+					<option value="id-ID, Damayanti">id-ID, Damayanti</option>
+					<option value="it-IT, Alice">it-IT, Alice</option>
+					<option value="it-IT, Luca">it-IT, Luca</option>
+					<option value="ja-JP, Kyoko">ja-JP, Kyoko</option>
+					<option value="ko-KR, Yuna">ko-KR, Yuna</option>
+					<option value="nb-NO, Nora">nb-NO, Nora</option>
+					<option value="nl-BE, Ellen">nl-BE, Ellen</option>
+					<option value="nl-NL, Xander">nl-NL, Xander</option>
+					<option value="pl-PL, Zosia">pl-PL, Zosia</option>
+					<option value="pt-BR, Luciana">pt-BR, Luciana</option>
+					<option value="pt-PT, Joana">pt-PT, Joana</option>
+					<option value="ro-RO, Ioana">ro-RO, Ioana</option>
+					<option value="ru-RU, Milena">ru-RU, Milena</option>
+					<option value="ru-RU, Yuri">ru-RU, Yuri</option>
+					<option value="sk-SK, Laura">sk-SK, Laura</option>
+					<option value="sv-SE, Alva">sv-SE, Alva</option>
+					<option value="th-TH, Kanya">th-TH, Kanya</option>
+					<option value="tr-TR, Yelda">tr-TR, Yelda</option>
+					<option value="zh-CN, Ting-Ting">zh-CN, Ting-Ting</option>
+					<option value="zh-HK, Sin-ji">zh-HK, Sin-ji</option>
+					<option value="zh-TW, Mei-Jia">zh-TW, Mei-Jia</option>
+				</select>
+			</div>
+
+			<div>
+				<label for="speech_recognition">Activation word</label>
+				<input type="text" class="inp activation_word" style="color: black; width: 100%;" value="Frank">
+			</div>
+			<div>
+				<label for="speech_recognition">Language for recognition</label>
 			<input type="text" class="inp speech_recognition" style="color: black; width: 100%;" value="en-US">
 		</div>
-		<input type="text" class="inp text" style="color: black; width: 100%;" placeholder="Write Something">
-		<div class="btn-row">
-			<div class="btn btn-send">Send</div>>
-			<div onclick="recognition.stop();recognition.lang = speech_recognition.lang ;recognition.start();"
-				class="btn btn-disc">Run SpeechRecognition</div>
 		</div>
 	</div>
 
@@ -103,6 +142,29 @@
 		//create a list of keywords
 		var keywords = ["begin language", "end language", "activation word", "speech"];
 		var started = false;
+
+		var ssu = new SpeechSynthesisUtterance();
+		ssu.lang = 'en-US';
+
+		// function GetSortedVoices() {
+		// 	// speechSynthesis.getVoices(); but in a variable
+		// 	const voices = speechSynthesis.getVoices();
+		// 	// put it as list for select element
+		// 	let sel = "";
+		// 	voices.forEach((voice) => {
+		// 		// values are the voice name and the language
+		// 		sel += `<option value="${voice.lang}, ${voice.name}">${voice.lang}, ${voice.name}</option>`;
+		// 	});
+
+		// 	// sort the list by language
+		// 	sel = sel.split('</option>').sort().join('</option>');
+		// // add </option> to the end of the list and remove it from the beginning
+		// 	sel = sel.substring(9)+ '</option>';;
+
+		// 	console.log(sel);
+		// 	// add it to the select element with id voices
+		// 	document.querySelector('#voices').innerHTML = sel;
+		// }
 
 		try {
 			var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -114,6 +176,15 @@
 			console.error(e);
 			$('.no-browser-support').show();
 			$('.app').hide();
+		}
+
+		// if enter is pressed then update recognition language
+		document.onkeyup = function (e) {
+			if (e.keyCode == 13) {
+				recognition.lang = (document.querySelector('.speech_recognition').value);
+				recognition.stop();
+				ssu.lang = recognition.lang;
+			}
 		}
 
 		recognition.onstart = function () {
@@ -130,24 +201,25 @@
 				console.log('No speech was detected. Try again.');
 			};
 		}
-
+		let trans = '';
 		var noteContent = '';
 		var waitOnce = false;
 		recognition.onresult = async function (event) {
 			var current = event.resultIndex;
 			var transcript = event.results[current][0].transcript;
+			trans = transcript;
 			var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
 			if (!mobileRepeatBug) {
 				var doNotWait = false;
-				var actw = (document.querySelector('.activation_word').value).toLowerCase()
-				//if  activation word in transcript and if there something after it
-				// if ((transcript.toLowerCase()).includes(actw) && transcript.split(actw)[1] != "") {
-				// 	doNotWait = true;
-				// }
+				var actw = (document.querySelector('.activation_word').value).toLowerCase();
+				// if  activation word in transcript and if there something after it
+				if ((transcript.toLowerCase()).includes(actw) && transcript[transcript.toLowerCase().indexOf(actw) + actw.length].length > 0) {
+					doNotWait = true;
+				}
 				noteContent += transcript;
 				transcript = transcript.toLowerCase();
 				//write noteContent to the component with class .ia
-				document.querySelector('.ia').innerText = (noteContent);
+				ia.innerText = (noteContent);
 				//log doNotWait and waitOnce
 				console.log(doNotWait, waitOnce);
 				// if transcript contains the word set in the input field .activation_word then call Discuss() and Send() and await for the response
@@ -201,15 +273,6 @@
 			}
 		}
 
-		async function SpeechSend(transcript, minIndex) {
-			//replace activation word by "" in the transcript
-			transcript = transcript.replace(activation_word, "");
-
-			//Call Send() and await for the response
-			await Send(transcript, lang.value, fromLang.value);
-			render();
-		}
-
 		navigator.mediaDevices.getUserMedia({
 				audio: true
 			})
@@ -232,9 +295,9 @@
 					analyser.getByteFrequencyData(array);
 					const arraySum = array.reduce((a, value) => a + value, 0);
 					const average = arraySum / array.length;
-					if (Math.round(average) > 44, !started){
+					if (Math.round(average) > 44, !started) {
 						//if recognition is not running then start it
-						if (!recognition.running){
+						if (!recognition.running) {
 							recognition.start();
 						}
 					}
@@ -259,26 +322,35 @@
 			return indexes;
 		}
 		const ia = document.querySelector('.ia');
+		const ia_a = document.querySelector('.ia-answer');
 		const text = document.querySelector('.text');
 		const lang = document.querySelector('.lang');
 		const fromLang = document.querySelector('.fromLang');
 		const activation_word = document.querySelector('.activation_word');
 		const speech_recognition = document.querySelector('.speech_recognition');
-		const btnSay = document.querySelector('.btn-say');
-		const btnSend = document.querySelector('.btn-send');
-		const btnDisc = document.querySelector('.btn-disc');
 
-		// We use async/await because Go functions are asynchronous
-		const render = async () => {
-			ia.innerText = `${await window.GetInput()}`;
-		};
 
-		btnSend.addEventListener('click', async () => {
-			await Send(text.value, lang.value, fromLang.value); // Call Go function
-			render();
-		});
+		async function SpeechSend(transcript, minIndex) {
+			//replace activation word by "" in the transcript
+			transcript = transcript.replace(activation_word, "");
+			let fl = "";
+			if (lang){
+				fl = lang.value;
+			}
+			let fl2 = "";
+			if (fromLang){
+				fl2 = fromLang.value;
+			}
+			//get answer from the server bestiaever.ml/ia/answer with the transcript, lang and fromLang
+			const response = await fetch('http://localhost:5019/ai/answer?text=' + transcript + '&lang=' + fl +
+				'&fromlang=' + fl2);
+			const answer = await response.text();
 
-		render();
+			//say answer
+			window.speechSynthesis.speak(new SpeechSynthesisUtterance(answer));
+			// write answer in the text with class ia-answer
+			ia_a.innerHTML += `<div class="ia-answer">${answer}</div>`;
+		}
 	</script>
 </body>
 
