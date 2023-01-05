@@ -1,0 +1,61 @@
+
+		html,
+		body {
+			height: -webkit-fill-available !important;
+			height: 100%;
+			height: fill-available;
+		}
+
+		body {
+			/* background half soft black half soft white 0° */
+			background: linear-gradient(0deg, #141414 48%, #fffcfc 48%);
+			font-family: 'Helvetika Neue', Arial, sans-serif;
+			font-size: 28px;
+			display: flex;
+			justify-content: center;
+		}
+
+		.counter-container {
+			display: flex;
+			align-items: center;
+			height: -webkit-fill-available;
+			height: -moz-available;
+			height: fill-available;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.counter-container label {
+			color: #fff;
+			mix-blend-mode: difference;
+			text-align-last: center;
+			width: -webkit-fill-available;
+			width: -moz-available;
+			width: fill-available;
+		}
+
+		.final {
+			text-align: -webkit-center;
+			display: flex;
+			justify-content: space-around;
+			width: 100%;
+			height: 25%;
+		}
+
+		.final > div{
+			max-width: 35%;
+		}
+
+		.final > div > div {
+			text-align: -webkit-left;
+			max-height: 100%;;
+			overflow: auto;
+		}
+
+		.btn-row{
+			margin-top: 4%;
+		}
+
+		.btn-row > div {
+			padding: 2%;
+		}

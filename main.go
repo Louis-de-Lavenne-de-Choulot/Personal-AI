@@ -12,7 +12,7 @@ import (
 func main() {
 	authSpotify()
 
-	ln, err := net.Listen("tcp", "127.0.0.1:5019")
+	ln, err := net.Listen("tcp", "0.0.0.0:5019")
 	if err != nil {
 		log.Fatal(err)
 	}

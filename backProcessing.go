@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/bregydoc/gtranslate"
-	htgotts "github.com/hegedustibor/htgo-tts"
 )
 
 // var speechFile string = "languagesSpeech"
@@ -23,8 +22,10 @@ func Serv(input string, lang string, fromLang string) string {
 	if fromLang == "" {
 		fromLang = "en"
 	}
+	println(fromLang)
 	//translate input in english
 	input = Translate(input, "en", fromLang)
+	println(input + "_______________________________________")
 	v, fromLang := witAIHandler(input, "")
 	println(fromLang)
 	if fromLang == "" {
@@ -110,8 +111,6 @@ func partialLanguageSearch(input string, file string) string {
 			}
 		}
 	}
-	speech := htgotts.Speech{Folder: "audio", Language: "en-UK"}
-	speech.Speak("Language not found in voice synthetiser, switching to english")
 	//return language code
 	return "en"
 }

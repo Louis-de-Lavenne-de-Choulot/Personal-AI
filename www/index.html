@@ -2,55 +2,9 @@
 <html>
 
 <head>
-	<title>Counter</title>
+	<title>Personal AI</title>
 	<link rel="shortcut icon" href="favicon.png">
-	<style>
-		html,
-		body {
-			height: 100%;
-		}
-
-		body {
-			/* background half soft black half soft white 0° */
-			background: linear-gradient(0deg, #141414 48%, #fffcfc 48%);
-			font-family: 'Helvetika Neue', Arial, sans-serif;
-			font-size: 28px;
-			display: flex;
-			justify-content: center;
-		}
-
-		.counter-container {
-			display: flex;
-    		align-items: center;
-    		height: -webkit-fill-available;
-    		height: -moz-available;
-    		height: fill-available;
-    		flex-direction: column;
-    		justify-content: center;
-		}
-
-		.counter-container>div {
-			text-align: -webkit-center;
-		}
-
-		.counter {
-			text-transform: uppercase;
-			color: #fff;
-			font-weight: bold;
-			font-size: 3rem;
-		}
-
-		.counter-container label {
-			color: #fff;
-			mix-blend-mode: difference;
-			text-align-last: center;
-		}
-
-		.final {
-			display: flex;
-    		align-items: flex-start;
-		}
-	</style>
+	<link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
@@ -59,14 +13,19 @@
 		<div class="final">
 			<div>
 				<label>Recognised</label>
-		<p class="ia"></hp>
+				<div>
+				<p class="ia">
+					</hp>
+				</div>
+			</div>
+			<div>
+				<label>Answer</label>
+				<div>
+				<p class="ia-answer"></p>
+			</div>
+			</div>
+
 		</div>
-		<div>
-			<label>Answer</label>
-			<p class="ia-answer"></p>
-		</div>
-		
-	</div>
 		<div class="btn-row">
 			<div>
 				<!-- context of the select for ia voices -->
@@ -131,227 +90,18 @@
 			</div>
 			<div>
 				<label for="speech_recognition">Language for recognition</label>
-			<input type="text" class="inp speech_recognition" style="color: black; width: 100%;" value="en-US">
-		</div>
+				<input type="text" class="inp speech_recognition" style="color: black; width: 100%;" value="en-US">
+			</div>
 		</div>
 	</div>
 
 	<!-- Scripts -->
 
-	<script>
-		//create a list of keywords
-		var keywords = ["begin language", "end language", "activation word", "speech"];
-		var started = false;
-
-		var ssu = new SpeechSynthesisUtterance();
-		ssu.lang = 'en-US';
-
-		// function GetSortedVoices() {
-		// 	// speechSynthesis.getVoices(); but in a variable
-		// 	const voices = speechSynthesis.getVoices();
-		// 	// put it as list for select element
-		// 	let sel = "";
-		// 	voices.forEach((voice) => {
-		// 		// values are the voice name and the language
-		// 		sel += `<option value="${voice.lang}, ${voice.name}">${voice.lang}, ${voice.name}</option>`;
-		// 	});
-
-		// 	// sort the list by language
-		// 	sel = sel.split('</option>').sort().join('</option>');
-		// // add </option> to the end of the list and remove it from the beginning
-		// 	sel = sel.substring(9)+ '</option>';;
-
-		// 	console.log(sel);
-		// 	// add it to the select element with id voices
-		// 	document.querySelector('#voices').innerHTML = sel;
-		// }
-
-		try {
-			var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-			var recognition = new SpeechRecognition();
-			recognition.continuous = true;
-			//recognition lang to chinese
-			recognition.lang = "en-UK";
-		} catch (e) {
-			console.error(e);
-			$('.no-browser-support').show();
-			$('.app').hide();
-		}
-
-		// if enter is pressed then update recognition language
-		document.onkeyup = function (e) {
-			if (e.keyCode == 13) {
-				recognition.lang = (document.querySelector('.speech_recognition').value);
-				recognition.stop();
-				ssu.lang = recognition.lang;
-			}
-		}
-
-		recognition.onstart = function () {
-			started = true;
-		}
-
-		recognition.onend = function (event) {
-			started = false;
-		}
-
-		recognition.onerror = function (event) {
-			started = false;
-			if (event.error == 'no-speech') {
-				console.log('No speech was detected. Try again.');
-			};
-		}
-		let trans = '';
-		var noteContent = '';
-		var waitOnce = false;
-		recognition.onresult = async function (event) {
-			var current = event.resultIndex;
-			var transcript = event.results[current][0].transcript;
-			trans = transcript;
-			var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
-			if (!mobileRepeatBug) {
-				var doNotWait = false;
-				var actw = (document.querySelector('.activation_word').value).toLowerCase();
-				// if  activation word in transcript and if there something after it
-				if ((transcript.toLowerCase()).includes(actw) && transcript[transcript.toLowerCase().indexOf(actw) + actw.length].length > 0) {
-					doNotWait = true;
-				}
-				noteContent += transcript;
-				transcript = transcript.toLowerCase();
-				//write noteContent to the component with class .ia
-				ia.innerText = (noteContent);
-				//log doNotWait and waitOnce
-				console.log(doNotWait, waitOnce);
-				// if transcript contains the word set in the input field .activation_word then call Discuss() and Send() and await for the response
-				if (doNotWait || waitOnce) {
-					// var indexesAnd = getAllIndexes(transcript, 'and');
-					var minIndex = [0, "none"];
-					//foreach keyword in the list of keywords
-					keywords.forEach(async keyword => {
-						if (transcript.includes(keyword)) {
-							var index = transcript.indexOf(keyword);
-							if (minIndex[0] == 0) {
-								minIndex = [index, keyword];
-							} else {
-								if (index < minIndex[0]) {
-									minIndex = [index, keyword];
-								}
-							}
-							// }
-						}
-					});
-					//if minIndex is not 0 then call the function that is in minIndex[1]
-					if (minIndex[0] != 0) {
-						if (minIndex[1] == "begin language") {
-							//remove "to" from the transcript
-							transcript = transcript.replace("to", "");
-							fromLang.value = transcript.substring(minIndex[0] + minIndex[1].length);
-						} else if (minIndex[1] == "end language") {
-							//remove "to" from the transcript
-							transcript = transcript.replace("to", "");
-							lang.value = transcript.substring(minIndex[0] + minIndex[1].length);
-						} else if (minIndex[1] == "activation word") {
-							//remove "to" from the transcript
-							activation_word.value = transcript.substring(minIndex[0] + minIndex[1].length);
-						} else if (minIndex[1] == "speech") {
-							//remove "to" from the transcript
-							transcript = transcript.replace("to", "");
-							speech_recognition.value = transcript.substring(minIndex[0] + minIndex[1].length);
-							recognition.lang = speech_recognition.innerText;
-						}
-					} else {
-						await SpeechSend(transcript, minIndex);
-						waitOnce = false;
-					}
-				}
-
-				if (transcript.includes(document.querySelector('.activation_word').value.toLowerCase()) && !
-					doNotWait) {
-					waitOnce = true;
-				}
-
-			}
-		}
-
-		navigator.mediaDevices.getUserMedia({
-				audio: true
-			})
-			.then(function (stream) {
-				console.log('You have given me access to your mic, starting recognition...');
-				// recognition.start();
-				const audioContext = new AudioContext();
-				const analyser = audioContext.createAnalyser();
-				const microphone = audioContext.createMediaStreamSource(stream);
-				const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
-
-				analyser.smoothingTimeConstant = 0.8;
-				analyser.fftSize = 1024;
-
-				microphone.connect(analyser);
-				analyser.connect(scriptProcessor);
-				scriptProcessor.connect(audioContext.destination);
-				scriptProcessor.onaudioprocess = function () {
-					const array = new Uint8Array(analyser.frequencyBinCount);
-					analyser.getByteFrequencyData(array);
-					const arraySum = array.reduce((a, value) => a + value, 0);
-					const average = arraySum / array.length;
-					if (Math.round(average) > 44, !started) {
-						//if recognition is not running then start it
-						if (!recognition.running) {
-							recognition.start();
-						}
-					}
-				};
-			})
-			.catch(function (err) {
-				console.log('No mic for you!')
-			});
-	</script>
+	<script src="./js/volume-meter.js"></script>
+	<script src="./js/sound-recog.js"></script>
 
 	<!-- Connect UI actions to Go functions -->
-	<script>
-		function getAllIndexes(arr, val) {
-			var indexes = [];
-			var i = -1;
-			indexes.push(arr.indexOf(val, 0));
-			while ((i = arr.indexOf(val, i + 1)) != -1) {
-				indexes.push(arr.indexOf(val, i + 1));
-			}
-			//remove last element if it is -1
-			indexes.pop();
-			return indexes;
-		}
-		const ia = document.querySelector('.ia');
-		const ia_a = document.querySelector('.ia-answer');
-		const text = document.querySelector('.text');
-		const lang = document.querySelector('.lang');
-		const fromLang = document.querySelector('.fromLang');
-		const activation_word = document.querySelector('.activation_word');
-		const speech_recognition = document.querySelector('.speech_recognition');
-
-
-		async function SpeechSend(transcript, minIndex) {
-			//replace activation word by "" in the transcript
-			transcript = transcript.replace(activation_word, "");
-			let fl = "";
-			if (lang){
-				fl = lang.value;
-			}
-			let fl2 = "";
-			if (fromLang){
-				fl2 = fromLang.value;
-			}
-			//get answer from the server bestiaever.ml/ia/answer with the transcript, lang and fromLang
-			const response = await fetch('http://localhost:5019/ai/answer?text=' + transcript + '&lang=' + fl +
-				'&fromlang=' + fl2);
-			const answer = await response.text();
-
-			//say answer
-			window.speechSynthesis.speak(new SpeechSynthesisUtterance(answer));
-			// write answer in the text with class ia-answer
-			ia_a.innerHTML += `<div class="ia-answer">${answer}</div>`;
-		}
-	</script>
+	<script src="./js/ia.js"></script>
 </body>
 
 </html>
