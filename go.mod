@@ -16,7 +16,7 @@ require (
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 require (
